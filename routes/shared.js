@@ -1,13 +1,12 @@
-var stringSimilarity = require('string-similarity');
-const chromeLauncher = require('chrome-launcher');
-const SIMILARITY_LIMIT = 0.1
-var chromeInstance = null
+var stringSimilarity = require('string-similarity')
+const launchChrome = require('@serverless-chrome/lambda')
+const SIMILARITY_LIMIT = 0.875
 
 module.exports = {
 	startChrome: function() {
 		return Promise.resolve().then(() => {
-			return chromeLauncher.launch({
-				chromeflags: ['--window-size=1200,800', '--disable-gpu', '--headless', '--disable-images']
+			return launchChrome({
+    			flags:  ['--window-size=1200,800', '--disable-gpu', '--headless', '--disable-images']
 			}).then(function(chrome) {
 				return chrome;
 			});

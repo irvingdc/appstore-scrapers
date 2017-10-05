@@ -36,20 +36,22 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/scrapers/', index);
-app.use('/scrapers/tencent', tencent);
-app.use('/scrapers/360', _360);
-app.use('/scrapers/baidu', baidu);
-app.use('/scrapers/xiaomi', xiaomi);
-app.use('/scrapers/himarket', himarket);
-app.use('/scrapers/huawei', huawei);
-app.use('/scrapers/anzhi', anzhi);
-app.use('/scrapers/wandoujia', wandoujia);
-app.use('/scrapers/sogou', sogou);
-app.use('/scrapers/91', _91);
-app.use('/scrapers/oppo', oppo);
-app.use('/scrapers/lenovo', lenovo);
-app.use('/scrapers/pp', pp);
+let mainRoute = "/scrapers/"
+
+app.use(mainRoute, index);
+app.use(mainRoute+'tencent', tencent);
+app.use(mainRoute+'360', _360);
+app.use(mainRoute+'baidu', baidu);
+app.use(mainRoute+'xiaomi', xiaomi);
+app.use(mainRoute+'himarket', himarket);
+app.use(mainRoute+'huawei', huawei);
+app.use(mainRoute+'anzhi', anzhi);
+app.use(mainRoute+'wandoujia', wandoujia);
+app.use(mainRoute+'sogou', sogou);
+app.use(mainRoute+'91', _91);
+app.use(mainRoute+'oppo', oppo);
+app.use(mainRoute+'lenovo', lenovo);
+app.use(mainRoute+'pp', pp);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
