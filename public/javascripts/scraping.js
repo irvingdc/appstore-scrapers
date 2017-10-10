@@ -3,19 +3,19 @@ const WebRequest = require('web-request')
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
 const fn = require("./shared")
+var striptags = require('striptags');
 
-const SIMILARITY_LIMIT = 0.875
+const SIMILARITY_LIMIT = 0.82
 
 module.exports = {
 	getResultsList: async function(url,search,selector){
 		let html = await WebRequest.get(url+search)
 		let doc = this.createDocument(html.content)
 		let location = url.match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)/gm)
-		console.log(location)
 
 		let links = [].map.call(
 		      doc.querySelectorAll(selector),
-		      a => ({text: a.innerHTML, href: ( /^(http+?)(s\b|\b)(:\/\/)/.test(a.href) ? a.href : location+a.href)})
+		      a => ({text: striptags(a.innerHTML), href: ( /^(http+?)(s\b|\b)(:\/\/)/.test(a.href) ? a.href : location+a.href)})
 		    )
 		return links
 	},
@@ -36,9 +36,9 @@ module.exports = {
 			}
 		})
 
-		if(bestResult.similarity < SIMILARITY_LIMIT) return null
-
 		console.log(bestResult)
+
+		if(bestResult.similarity < SIMILARITY_LIMIT) return null
 
 		if(selector){
 			let html = await WebRequest.get(bestResult.href)

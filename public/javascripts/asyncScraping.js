@@ -5,7 +5,7 @@ const WebRequest = require('web-request')
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
 
-const SIMILARITY_LIMIT = 0.875
+const SIMILARITY_LIMIT = 0.82
 
 module.exports = {
 	startChrome: function() {
@@ -42,10 +42,10 @@ module.exports = {
 				if(it.similarity > bestResult.similarity) bestResult = it
 			}
 		})
+		
+		console.log(bestResult)
 
 		if(bestResult.similarity < SIMILARITY_LIMIT) return null
-
-		console.log(bestResult)
 
 		if(selector){
 			let downloads = await chromeless
