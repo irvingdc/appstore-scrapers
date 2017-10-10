@@ -1,5 +1,10 @@
-var stringSimilarity = require('string-similarity')
+const stringSimilarity = require('string-similarity')
+const fn = require('./shared')
 const launchChrome = require('@serverless-chrome/lambda')
+const WebRequest = require('web-request')
+const jsdom = require("jsdom")
+const { JSDOM } = jsdom
+
 const SIMILARITY_LIMIT = 0.875
 
 module.exports = {
@@ -49,30 +54,8 @@ module.exports = {
 				console.log("evaluating")
 				return document.querySelectorAll(selector)[0].innerHTML
 			},selector)
-			bestResult.downloads = this.chineseToInternationalNumbers(downloads)
+			bestResult.downloads = fn.chineseToInternationalNumbers(downloads)
 		}
 		return bestResult
-	},
-	chineseToInternationalNumbers: function(text){
-		var downloads = parseInt(text.replace(/[^0-9]/gi,''))
-		if(text.match(/百/g)) downloads = downloads*100
-		if(text.match(/千/g)) downloads = downloads*1000
-		if(text.match(/万/g)) downloads = downloads*10000
-		if(text.match(/亿/g)) downloads = downloads*100000000
-		return downloads
-	},
-	numberWithCommas: function(x) {
-    	var parts = x.toString().split(".");
-	    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    return parts.join(".");
-	},
-	getDownloads: async function(chromeless,url,selector){
-		await chromeless
-			.goto(url)
-			.wait(selector)
-			.evaluate(() => {
-				return document.querySelectorAll('div.det-ins-num')[0].innerHTML
-			})
-		return this.chineseToInternationalNumbers(chineseDownloads)
 	},
 }
