@@ -1,6 +1,6 @@
 module.exports = {
 	chineseToInternationalNumbers: function(text){
-		var downloads = parseInt(text.replace(/[^0-9]/gi,''))
+		var downloads = parseFloat(text.replace(/[^\d\.,]/gi,''))
 		if(text.match(/百/g)) downloads = downloads*100
 		if(text.match(/千/g)) downloads = downloads*1000
 		if(text.match(/万/g)) downloads = downloads*10000
