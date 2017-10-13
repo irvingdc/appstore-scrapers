@@ -21,6 +21,12 @@ var _91 = require('./routes/91');
 var oppo = require('./routes/oppo');
 var lenovo = require('./routes/lenovo');
 var pp = require('./routes/pp');
+var meizu = require('./routes/meizu');
+var _2345 = require('./routes/2345');
+var mm = require('./routes/mm');
+var lemon = require('./routes/lemon');
+var zol = require('./routes/zol');
+var appchina = require('./routes/appchina');
 
 var app = express();
 app.use(cors());
@@ -53,6 +59,12 @@ app.use(mainRoute+'91', _91);
 app.use(mainRoute+'oppo', oppo);
 app.use(mainRoute+'lenovo', lenovo);
 app.use(mainRoute+'pp', pp);
+app.use(mainRoute+'meizu', meizu);
+app.use(mainRoute+'2345', _2345);
+app.use(mainRoute+'mm', mm);
+app.use(mainRoute+'lemon', lemon);
+app.use(mainRoute+'appchina', appchina);
+app.use(mainRoute+'zol', zol);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
