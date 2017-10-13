@@ -7,7 +7,10 @@ const { Chromeless } = require('chromeless')
 async function run(req, res, next) {
 
 	let search = req.query.search
-	const chromeless = new Chromeless({ remote: true, })
+	const chromeless = new Chromeless({ remote: {
+    	endpointUrl: 'https://49hghygba8.execute-api.us-east-2.amazonaws.com/dev/',
+	    apiKey: 'DNQjxLIt5A7B2UvRQsCAPaYdy08vn94z4JOyVjiE'
+	}, })
 
 	let results = await sc.getResultsList(chromeless,'http://apps.mycheering.com/WebPage/search_result.html?sword=',search,'a.lm_soft_icon')
 	let bestResult = await sc.getBestMatch(chromeless,results,search,null)
