@@ -3,7 +3,7 @@ const WebRequest = require('web-request')
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
 const fn = require("./shared")
-var striptags = require('striptags');
+var striptags = require('striptags')
 
 const SIMILARITY_LIMIT = 0.82
 
