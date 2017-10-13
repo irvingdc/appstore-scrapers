@@ -5,7 +5,7 @@ const WebRequest = require('web-request')
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
 
-const SIMILARITY_LIMIT = 0.82
+const SIMILARITY_LIMIT = 0.875
 
 module.exports = {
 	startChrome: function() {
