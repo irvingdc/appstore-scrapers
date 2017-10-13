@@ -5,7 +5,7 @@ const { JSDOM } = jsdom
 const fn = require("./shared")
 var striptags = require('striptags')
 
-const SIMILARITY_LIMIT = 0.82
+const SIMILARITY_LIMIT = 0.875
 
 module.exports = {
 	getResultsList: async function(url,search,selector){
