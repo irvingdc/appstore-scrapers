@@ -8,6 +8,7 @@ var striptags = require('striptags')
 const SIMILARITY_LIMIT = 0.875
 
 module.exports = {
+
 	getResultsList: async function(url,search,selector){
 		let html = await WebRequest.get(url+search)
 		let doc = this.createDocument(html.content)
@@ -16,6 +17,22 @@ module.exports = {
 		let links = [].map.call(
 		      doc.querySelectorAll(selector),
 		      a => ({text: striptags(a.innerHTML), href: ( /^(http+?)(s\b|\b)(:\/\/)/.test(a.href) ? a.href : location+a.href)})
+		    )
+		return links
+	},
+	getGoogleResultsList: async function(url,search,selector){
+		let html = await WebRequest.get(url+search)
+		console.log("retrieved results from google")
+		let doc = this.createDocument(html.content)
+		let location = url.match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)/gm)
+		let links = [].map.call(
+		      doc.querySelectorAll(selector),
+		      div => ({
+		      			img: div.querySelector("img").getAttribute("src"), 
+		      			company: div.querySelector("a.subtitle").getAttribute("title"),
+		      			name: div.querySelector("a.title").getAttribute("title"), 
+		      			package: div.getAttribute("data-docid"),
+		      		 })
 		    )
 		return links
 	},
