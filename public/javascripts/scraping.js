@@ -5,64 +5,78 @@ const { JSDOM } = jsdom
 const fn = require("./shared")
 var striptags = require('striptags')
 
-const SIMILARITY_LIMIT = 0.875
+const PACKAGE_SIMILARITY_LIMIT = 0.97
+const NAME_SIMILARITY_LIMIT = 0.9
 
 module.exports = {
-
-	getResultsList: async function(url,search,selector){
-		let html = await WebRequest.get(url+search)
+	getResultsList: async function(url,search,selector, customLinksSelector = null){
+		console.log("searching..."+url+encodeURI(search))
+		let html = await WebRequest.get(url+encodeURI(search))
 		let doc = this.createDocument(html.content)
 		let location = url.match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)/gm)
-
-		let links = [].map.call(
+		let links
+		if(customLinksSelector) links = customLinksSelector(doc)
+		else{
+			links = [].map.call(
 		      doc.querySelectorAll(selector),
 		      a => ({text: striptags(a.innerHTML), href: ( /^(http+?)(s\b|\b)(:\/\/)/.test(a.href) ? a.href : location+a.href)})
 		    )
-		return links
-	},
-	getGoogleResultsList: async function(url,search,selector){
-		let html = await WebRequest.get(url+search)
-		console.log("retrieved results from google")
-		let doc = this.createDocument(html.content)
-		let location = url.match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)/gm)
-		let links = [].map.call(
-		      doc.querySelectorAll(selector),
-		      div => ({
-		      			img: div.querySelector("img").getAttribute("src"), 
-		      			company: div.querySelector("a.subtitle").getAttribute("title"),
-		      			name: div.querySelector("a.title").getAttribute("title"), 
-		      			package: div.getAttribute("data-docid"),
-		      		 })
-		    )
+		}
 		return links
 	},
 	createDocument: function(htmlString){
 		const dom = new JSDOM(htmlString)
 		return dom.window.document
 	},
-	getBestMatch: async function(results,search,selector){
-		var bestResult = {text: "", href: "", similarity:0}
-		results.forEach(it => {
-			it.similarity = stringSimilarity.compareTwoStrings(it.text.replace(/[^a-z0-9]/gi,''), search.replace(/[^a-z0-9]/gi,''))
-			it.chineseSimilarity = stringSimilarity.compareTwoStrings(it.text,search)
-			if(it.similarity == 0){
-				if(it.chineseSimilarity > bestResult.chineseSimilarity) bestResult = it
-			}
-			else{
-				if(it.similarity > bestResult.similarity) bestResult = it
-			}
-		})
+	getBestMatch: function(results, appName, appFullName, appPackage, downloadsSelector, packageSelector, deepSearch){
 
-		console.log(bestResult)
+		var bestResult, bestResultByName, bestResultByFullName, bestResultByPackage, count = 0
+		bestResult = bestResultByName = bestResultByFullName = bestResultByPackage = {text: "", href: "", packageSimilarity:0, nameSimilarity:0, fullNameSimilarity:0}
 
-		if(bestResult.similarity < SIMILARITY_LIMIT) return null
+		return new Promise(async (resolve, reject) => {  
+			if(results.length == 0) resolve(null)
+	        results.forEach(async (it) => {
+	        	let element
+	        	if(deepSearch){
+	        		let html = await WebRequest.get(it.href)
+					element = this.createDocument(html.content)
+	        	}
+	        	else element = it
 
-		if(selector){
-			let html = await WebRequest.get(bestResult.href)
-			let doc = this.createDocument(html.content)
-			let downloads = doc.querySelectorAll(selector)[0].innerHTML
-			bestResult.downloads = fn.chineseToInternationalNumbers(downloads)
-		}
-		return bestResult
+				it.packageFound = packageSelector(element)
+
+				it.nameSimilarity = stringSimilarity.compareTwoStrings(it.text.replace(/[^a-z0-9]/gi,''), appName.replace(/[^a-z0-9]/gi,''))
+				if(it.nameSimilarity > bestResultByName.nameSimilarity) bestResultByName = it
+
+				it.fullNameSimilarity = stringSimilarity.compareTwoStrings(it.text.replace(/[^a-z0-9]/gi,''), appFullName.replace(/[^a-z0-9]/gi,''))
+				if(it.fullNameSimilarity > bestResultByFullName.fullNameSimilarity) bestResultByFullName = it
+
+				it.packageSimilarity = stringSimilarity.compareTwoStrings(it.packageFound.replace(/[^a-z0-9]/gi,''), appPackage.replace(/[^a-z0-9]/gi,''))
+				if(it.packageSimilarity > bestResultByPackage.packageSimilarity) bestResultByPackage = it
+				
+				count += 1
+				if(count == results.length){
+
+					if(bestResultByPackage.packageSimilarity >= PACKAGE_SIMILARITY_LIMIT) 
+						bestResult = bestResultByPackage
+					else if(bestResultByName.nameSimilarity >= NAME_SIMILARITY_LIMIT) 
+						bestResult = bestResultByName
+					else if(bestResultByFullName.fullNameSimilarity >= NAME_SIMILARITY_LIMIT) 
+						bestResult = bestResultByFullName
+					else bestResult = null
+
+					if(downloadsSelector && bestResult != null){
+						let html = await WebRequest.get(bestResult.href)
+						let doc = this.createDocument(html.content)
+						let downloads = doc.querySelectorAll(downloadsSelector)[0].innerHTML
+						console.log("downloads: "+downloads)
+						bestResult.downloads = fn.chineseToInternationalNumbers(downloads)
+						bestResult.styledDownloads = fn.numberWithCommas(bestResult.downloads)
+					}
+					resolve(bestResult)
+				}
+
+			})	
+	    })
 	}
 }
