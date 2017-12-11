@@ -1,3 +1,6 @@
+const WebRequest = require('web-request')
+var base64 = require('node-base64-image')
+
 module.exports = {
 	chineseToInternationalNumbers: function(text){
 		var downloads = parseFloat(text.replace(/[^\d\.,]/gi,''))
@@ -12,4 +15,13 @@ module.exports = {
 	    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    return parts.join(".");
 	},
+	getImageData: async function(url) {
+		return new Promise((resolve, reject) => {
+			let image = base64.encode(url, {string: true}, (err, image) => { 
+				if(!err) resolve(image)
+				return reject (err)
+			})
+		})	
+	}
+
 }
