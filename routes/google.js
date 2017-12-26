@@ -3,11 +3,11 @@ var sc = require('../public/javascripts/scraping')
 var express = require('express')
 const WebRequest = require('web-request')
 var router = express.Router()
-const NUMBER_GOOGLE_RESULTS = 5
+const NUMBER_GOOGLE_RESULTS = 6
 
 async function run(req, res, next) {
 
-	let url = 'https://play.google.com/store/search?q='+req.query.appName
+	let url = 'https://play.google.com/store/search?hl=en&q='+req.query.appName
 	let selector = '.card.apps'
 
 	let html = await WebRequest.get(url)
@@ -16,7 +16,7 @@ async function run(req, res, next) {
         doc.querySelectorAll(selector),
         div => ({
         		url: "https://play.google.com"+div.querySelector("a.title").getAttribute("href"),
-      			img: "http:"+div.querySelector("img").getAttribute("src"), 
+      			img: div.querySelector("img").getAttribute("src").includes("http") ? div.querySelector("img").getAttribute("src") : "http:"+div.querySelector("img").getAttribute("src"), 
       			company: div.querySelector("a.subtitle").getAttribute("title"),
       			name: div.querySelector("a.title").getAttribute("title"), 
       			package: div.getAttribute("data-docid"),
