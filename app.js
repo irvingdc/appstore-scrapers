@@ -8,9 +8,25 @@ var cors = require('cors')
 
 var index = require('./routes/index');
 
-var general = require('./routes/general');
-var google = require('./routes/google');
-var googleDetails = require('./routes/googleDetails');
+var tencent = require('./routes/tencent');
+var _360 = require('./routes/360');
+var baidu = require('./routes/baidu');
+var xiaomi = require('./routes/xiaomi');
+var himarket = require('./routes/himarket');
+var huawei = require('./routes/huawei');
+var anzhi = require('./routes/anzhi');
+var wandoujia = require('./routes/wandoujia');
+var sogou = require('./routes/sogou');
+var _91 = require('./routes/91');
+var oppo = require('./routes/oppo');
+var lenovo = require('./routes/lenovo');
+var pp = require('./routes/pp');
+var meizu = require('./routes/meizu');
+var _2345 = require('./routes/2345');
+var mm = require('./routes/mm');
+var lemon = require('./routes/lemon');
+var zol = require('./routes/zol');
+var appchina = require('./routes/appchina');
 
 var app = express();
 app.use(cors());
@@ -27,12 +43,28 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let mainRoute = "/aicon-scrapers/"
+let mainRoute = "/scrapers/"
 
 app.use(mainRoute, index);
-app.use(mainRoute+'general', general);
-app.use(mainRoute+'google', google);
-app.use(mainRoute+'googleDetails', googleDetails);
+app.use(mainRoute+'tencent', tencent);
+app.use(mainRoute+'360', _360);
+app.use(mainRoute+'baidu', baidu);
+app.use(mainRoute+'xiaomi', xiaomi);
+app.use(mainRoute+'himarket', himarket);
+app.use(mainRoute+'huawei', huawei);
+app.use(mainRoute+'anzhi', anzhi);
+app.use(mainRoute+'wandoujia', wandoujia);
+app.use(mainRoute+'sogou', sogou);
+app.use(mainRoute+'91', _91);
+app.use(mainRoute+'oppo', oppo);
+app.use(mainRoute+'lenovo', lenovo);
+app.use(mainRoute+'pp', pp);
+app.use(mainRoute+'meizu', meizu);
+app.use(mainRoute+'2345', _2345);
+app.use(mainRoute+'mm', mm);
+app.use(mainRoute+'lemon', lemon);
+app.use(mainRoute+'appchina', appchina);
+app.use(mainRoute+'zol', zol);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
