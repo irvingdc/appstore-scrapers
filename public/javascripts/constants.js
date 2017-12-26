@@ -3,7 +3,7 @@ module.exports = {
 	_2345: {
 		searchUrl: "http://zhushou.2345.com/index.php?c=web&d=doSearch&so=",
 		targetSelector: "a.trig:not([id])",
-		downloadsSelector: "div.prop span.piece",
+		downloadsSelector: null,
 		async: false,
 		deepSearch: true,
 		packageSelector: function(doc){
@@ -74,17 +74,19 @@ module.exports = {
 		async: false,
 		deepSearch: true,
 		packageSelector: function(doc){
+			return ""
+			/*
 			let package
 			doc.querySelector(".mkapp-btn").getAttribute("dlurl").split("/").forEach((it)=>{
 				if(it.includes(".apk")) package = it.split(".").slice(0,-2).join(".")
 			})
-			return package
+			return package*/
 		}
 	},
 	lenovo: {
 		searchUrl: "http://www.lenovomm.com/search/index.html?q=",
 		targetSelector: "div.appDetails a",
-		downloadsSelector: "div.detailDownNum",
+		downloadsSelector: "div.detailDownNum span",
 		async: false,
 		deepSearch: true,
 		packageSelector: function(doc){
@@ -121,7 +123,7 @@ module.exports = {
 	pp: {
 		searchUrl: "https://www.25pp.com/ios/search_app_0/",
 		targetSelector: "a.app-title",
-		downloadsSelector: "p.app-downs",
+		downloadsSelector: "div.app-info div.app-downs",
 		async: false,
 		deepSearch: false,
 		packageSelector: function(doc){

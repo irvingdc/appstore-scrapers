@@ -3,12 +3,25 @@ var base64 = require('node-base64-image')
 
 module.exports = {
 	chineseToInternationalNumbers: function(text){
-		var downloads = parseFloat(text.replace(/[^\d\.,]/gi,''))
-		if(text.match(/百/g)) downloads = downloads*100
-		if(text.match(/千/g)) downloads = downloads*1000
-		if(text.match(/万/g)) downloads = downloads*10000
-		if(text.match(/亿/g)) downloads = downloads*100000000
-		return Math.round(downloads)
+        var result = ""
+        var multiplier = 1
+        var endFound = false
+        var numbersFound = false
+        if(text){
+        	text.split("").forEach((it)=>{
+	            let match = it.match(/[\d\.,百千亿万]/gi)
+	            if(!numbersFound && it.match(/[\d]/gi)) numbersFound = true
+	            if(!match && numbersFound) endFound = true
+	            if(!endFound && match) result += match[0].toString()
+	        })
+	        var number = parseFloat(result)
+
+	        if(text.match(/百/g)) multiplier = multiplier*100
+	        if(text.match(/千/g)) multiplier = multiplier*1000
+	        if(text.match(/万/g)) multiplier = multiplier*10000
+	        if(text.match(/亿/g)) multiplier = multiplier*100000000
+	        return Math.round(multiplier * number)
+        }        
 	},
 	numberWithCommas: function(x) {
     	var parts = x.toString().split(".");
