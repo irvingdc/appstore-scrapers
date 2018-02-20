@@ -1,33 +1,24 @@
 const stringSimilarity = require('string-similarity')
 const fn = require('./shared')
-const launchChrome = require('@serverless-chrome/lambda')
 const WebRequest = require('web-request')
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
-const { Chromeless } = require('chromeless')
+const puppeteer = require('puppeteer');
 var striptags = require('striptags')
 
 const PACKAGE_SIMILARITY_LIMIT = 0.97
 const NAME_SIMILARITY_LIMIT = 0.9
 
 module.exports = {
-	startChrome: function() {
-		return Promise.resolve().then(() => {
-			return launchChrome({
-    			flags:  ['--window-size=1200,800', '--disable-gpu', '--headless', '--disable-images']
-			}).then(function(chrome) {
-				return chrome;
-			});
-		});
-	},
-	getResultsList: async function(chromeless,url,search,selector,appstore){
+
+	getResultsList: async function(page,url,search,selector,appstore){
 		let location = url.match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)/gm)
 		let links
-		if(appstore == "meizu") 
-			links = await chromeless
-			    .goto(url+search)
-			    .wait(selector)
-				.evaluate(() => {
+		if(appstore == "meizu"){
+			await page.goto(url+search)
+			await page.waitForSelector(selector)
+
+			links = await page.evaluate(() => {
 				    let links = []
 					document.querySelectorAll("a.ellipsis[packageName]").forEach((it)=>{
 						links.push({
@@ -38,21 +29,23 @@ module.exports = {
 					})
 					return links
 				})
-		else
-			links = await chromeless
-		    .goto(url+search)
-		    .wait(selector)
-			.evaluate((selector) => {
+		}
+		else{
+			console.log("searching url "+url+search)
+			await page.goto(url+search)
+			await page.waitForSelector(selector)
+
+			links = await page.evaluate((selector) => {
 			    const links = [].map.call(
 			      document.querySelectorAll(selector),
 			      a => ({text: a.innerText, href: a.href})
 			    )
 			    return links
 			},selector)
-		
+		}
 		return links
 	},
-	getBestMatch: async function(chromeless,results, appName, appFullName, appPackage, downloadsSelector, packageSelector, deepSearch){
+	getBestMatch: async function(page,results, appName, appFullName, appPackage, downloadsSelector, packageSelector, deepSearch){
 		var bestResult, bestResultByName, bestResultByFullName, bestResultByPackage, count = 0
 		bestResult = bestResultByName = bestResultByFullName = bestResultByPackage = {text: "", href: "", packageSimilarity:0, nameSimilarity:0, fullNameSimilarity:0}
 
@@ -83,9 +76,11 @@ module.exports = {
 					else bestResult = null
 
 					if(downloadsSelector && bestResult != null){
-						let downloads = await chromeless
-						.goto(bestResult.href)
-						.evaluate((downloadsSelector) => {
+
+						await page.goto(bestResult.href)
+						await page.waitForSelector(downloadsSelector)
+
+						let downloads = await page.evaluate((downloadsSelector) => {
 							return document.querySelector(downloadsSelector).innerHTML
 						},downloadsSelector)
 						bestResult.downloads = fn.chineseToInternationalNumbers(downloads)

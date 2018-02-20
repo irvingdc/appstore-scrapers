@@ -3,7 +3,7 @@ var sc = require('../public/javascripts/scraping')
 var asc = require('../public/javascripts/asyncScraping')
 var express = require('express')
 var router = express.Router()
-const { Chromeless } = require('chromeless')
+const puppeteer = require('puppeteer');
 const constants = require('../public/javascripts/constants')
 
 async function run(req, res, next) {
@@ -17,15 +17,18 @@ async function run(req, res, next) {
 	let bestResult = {}
 
 	if(appstore.async){
-		const chromeless = new Chromeless()
-		results = await asc.getResultsList(chromeless, appstore.searchUrl, appName, appstore.targetSelector, req.query.store)
+		const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
+		const page = await browser.newPage();
+		console.log("puppeteer initialized")
+
+		results = await asc.getResultsList(page, appstore.searchUrl, appName, appstore.targetSelector, req.query.store)
 		console.log(results)
-		bestResult = await asc.getBestMatch(chromeless, results, appName, appFullName, package, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
+		bestResult = await asc.getBestMatch(page, results, appName, appFullName, package, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
 			.then(async (result)=>{ 
-				await chromeless.end()
+				browser.close();
 				res.send(result) 
 			},async (error)=>{ 
-				await chromeless.end()
+				browser.close();
 				res.send(error) 
 			})
 	}

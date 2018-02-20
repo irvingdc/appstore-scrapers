@@ -28,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let mainRoute = "/aicon-scrapers/"
+let mainRoute = "/scrapers/"
 
 app.use(mainRoute, index);
 app.use(mainRoute+'general', general);

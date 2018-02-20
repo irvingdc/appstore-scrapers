@@ -73,6 +73,9 @@ module.exports = {
 						bestResult.downloads = fn.chineseToInternationalNumbers(downloads)
 						bestResult.styledDownloads = fn.numberWithCommas(bestResult.downloads)
 					}
+
+					bestResult.text = bestResult.text.replace(/(\r\n|\n|\r)/gm,"").replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "")
+
 					resolve(bestResult)
 				}
 
