@@ -17,12 +17,9 @@ async function run(req, res, next) {
 	let bestResult = {}
 
 	if(appstore.async){
-		const chromeless = new Chromeless({ remote: {
-	    	endpointUrl: 'https://49hghygba8.execute-api.us-east-2.amazonaws.com/dev/',
-		    apiKey: 'DNQjxLIt5A7B2UvRQsCAPaYdy08vn94z4JOyVjiE'
-		}, })
+		const chromeless = new Chromeless()
 		results = await asc.getResultsList(chromeless, appstore.searchUrl, appName, appstore.targetSelector, req.query.store)
-		//console.log(results)
+		console.log(results)
 		bestResult = await asc.getBestMatch(chromeless, results, appName, appFullName, package, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
 			.then(async (result)=>{ 
 				await chromeless.end()
@@ -34,7 +31,7 @@ async function run(req, res, next) {
 	}
 	else{
 		results = await sc.getResultsList(appstore.searchUrl, appName, appstore.targetSelector, appstore.customLinksSelector)
-		//console.log(results)
+		console.log(results)
 		sc.getBestMatch(results, appName, appFullName, package, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
 			.then((result)=>{ res.send(result) },(error)=>{ res.send(error) })
 	}

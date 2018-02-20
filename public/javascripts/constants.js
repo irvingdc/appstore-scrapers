@@ -173,7 +173,7 @@ module.exports = {
 	},
 	xiaomi: {
 		searchUrl: "http://app.mi.com/search?keywords=",
-		targetSelector: "ul.applist li > a",
+		targetSelector: "ul.applist li h5 a",
 		downloadsSelector: null,
 		async: false,
 		deepSearch: false,

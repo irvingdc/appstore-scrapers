@@ -11,6 +11,7 @@ var index = require('./routes/index');
 var general = require('./routes/general');
 var google = require('./routes/google');
 var googleDetails = require('./routes/googleDetails');
+var googleRelatedApps = require('./routes/googleRelatedApps');
 
 var app = express();
 app.use(cors());
@@ -33,6 +34,7 @@ app.use(mainRoute, index);
 app.use(mainRoute+'general', general);
 app.use(mainRoute+'google', google);
 app.use(mainRoute+'googleDetails', googleDetails);
+app.use(mainRoute+'googleRelatedApps', googleRelatedApps);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
