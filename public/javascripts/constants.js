@@ -62,7 +62,7 @@ module.exports = {
 		targetSelector: "a.lm_soft_icon",
 		downloadsSelector: null,
 		async: true,
-		deepSearch: true,
+		deepSearch: false,
 		packageSelector: function(doc){
 			return ""
 		}
@@ -72,7 +72,7 @@ module.exports = {
 		targetSelector: "h4.title a",
 		downloadsSelector: 'span[class="grey sub"]',
 		async: false,
-		deepSearch: true,
+		deepSearch: false,
 		packageSelector: function(doc){
 			return ""
 			/*

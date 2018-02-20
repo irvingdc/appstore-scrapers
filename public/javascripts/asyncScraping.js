@@ -17,7 +17,7 @@ module.exports = {
 		if(appstore == "meizu"){
 			await page.goto(url+search)
 			await page.waitForSelector(selector)
-
+			await page.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36")
 			links = await page.evaluate(() => {
 				    let links = []
 					document.querySelectorAll("a.ellipsis[packageName]").forEach((it)=>{

@@ -16,30 +16,39 @@ async function run(req, res, next) {
 	let results = []
 	let bestResult = {}
 
-	if(appstore.async){
-		const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
-		const page = await browser.newPage();
-		console.log("puppeteer initialized")
+	try{
+		if(appstore.async){
+			const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox']});
+			const page = await browser.newPage();
+			console.log("puppeteer initialized")
 
-		results = await asc.getResultsList(page, appstore.searchUrl, appName, appstore.targetSelector, req.query.store)
-		console.log(results)
-		bestResult = await asc.getBestMatch(page, results, appName, appFullName, package, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
-			.then(async (result)=>{ 
-				browser.close();
-				res.send(result) 
-			},async (error)=>{ 
-				browser.close();
-				res.send(error) 
-			})
+			results = await asc.getResultsList(page, appstore.searchUrl, appName, appstore.targetSelector, req.query.store)
+			console.log(results)
+			bestResult = await asc.getBestMatch(page, results, appName, appFullName, package, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
+				.then(async (result)=>{ 
+					browser.close();
+					res.send(result) 
+				},async (error)=>{ 
+					browser.close();
+					res.send(error) 
+				})
+		}
+		else{
+			results = await sc.getResultsList(appstore.searchUrl, appName, appstore.targetSelector, appstore.customLinksSelector)
+			console.log(results)
+			sc.getBestMatch(results, appName, appFullName, package, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
+				.then((result)=>{ res.send(result) },(error)=>{ res.send(error) })
+		}
 	}
-	else{
-		results = await sc.getResultsList(appstore.searchUrl, appName, appstore.targetSelector, appstore.customLinksSelector)
-		console.log(results)
-		sc.getBestMatch(results, appName, appFullName, package, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
-			.then((result)=>{ res.send(result) },(error)=>{ res.send(error) })
+	catch(e){
+		res.send({error:true})
 	}
+
+		
 
 }
 
-router.get('/', function(req, res, next) { run(req,res,next) });
+router.get('/', function(req, res, next) { 
+	run(req,res,next) 
+});
 module.exports = router;
