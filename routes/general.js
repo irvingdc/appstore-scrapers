@@ -8,26 +8,28 @@ const constants = require('../public/javascripts/constants')
 
 async function run(req, res, next) {
 
-	let appName = decodeURI(req.query.appName)
+	let appName = decodeURI(req.query.appName).split("-")[0]
 	let appFullName = decodeURI(req.query.appFullName)
 	console.log("SEARCHING FOR APP "+appName)
 	let package = req.query.package
 	let appstore = constants[req.query.store]
 	let results = []
 	let bestResult = {}
+	var browser
 
 	try{
 		if(appstore.async){
-			const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox']});
+			browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox']});
 			const page = await browser.newPage();
 			console.log("puppeteer initialized")
 
 			results = await asc.getResultsList(page, appstore.searchUrl, appName, appstore.targetSelector, req.query.store)
 			console.log(results)
-			bestResult = await asc.getBestMatch(page, results, appName, appFullName, package, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
-				.then(async (result)=>{ 
+			await asc.getBestMatch(page, results, appName, appFullName, package, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
+				.then(async (r)=>{ 
 					browser.close();
-					res.send(result) 
+					if(r) r.storeId = req.query.storeId
+					res.send(r) 
 				},async (error)=>{ 
 					browser.close();
 					res.send(error) 
@@ -37,10 +39,18 @@ async function run(req, res, next) {
 			results = await sc.getResultsList(appstore.searchUrl, appName, appstore.targetSelector, appstore.customLinksSelector)
 			console.log(results)
 			sc.getBestMatch(results, appName, appFullName, package, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
-				.then((result)=>{ res.send(result) },(error)=>{ res.send(error) })
+				.then((r)=>{ 
+					console.log(r)
+					if(r) r.storeId = req.query.storeId
+					res.send(r) 
+				},(error)=>{ res.send(error) })
 		}
 	}
 	catch(e){
+		if(appstore.async) browser.close()
+		console.log("----------------------------------- Error -----------------------------------")
+		console.log(e)
+		console.log("----------------------------------- Error -----------------------------------")
 		res.send({error:true})
 	}
 
