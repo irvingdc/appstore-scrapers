@@ -5,15 +5,18 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors')
-
-var index = require('./routes/index');
-
-var general = require('./routes/general');
-var google = require('./routes/google');
-var googleDetails = require('./routes/googleDetails');
-var googleRelatedApps = require('./routes/googleRelatedApps');
-
+const puppeteer = require('puppeteer')
 var app = express();
+
+const mainRoute = process.env.ENV == 'dev' ? "/test/" : "/aicon-scrapers/" || process.env.ROUTE;
+
+(function startPuppeteer(){
+		puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--headless', '--disable-images']}).then(async browser => {
+			global.browser = browser
+			global.browser.on("disconnected", e => startPuppeteer())
+		})
+})()
+
 app.use(cors());
 
 // view engine setup
@@ -28,13 +31,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let mainRoute = "/scrapers/"
-
-app.use(mainRoute, index);
-app.use(mainRoute+'general', general);
-app.use(mainRoute+'google', google);
-app.use(mainRoute+'googleDetails', googleDetails);
-app.use(mainRoute+'googleRelatedApps', googleRelatedApps);
+//setting up views
+for (let view of ["general","google","amazonCategory","googleDetails","googleRelatedApps","amazonDetails"]) app.use(mainRoute+view, require('./routes/'+view));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

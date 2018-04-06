@@ -3,24 +3,30 @@ var sc = require('../public/javascripts/scraping')
 var express = require('express')
 const WebRequest = require('web-request')
 var router = express.Router()
+var striptags = require('striptags')
 
 async function run(req, res, next) {
 	console.log(decodeURI(req.query.url))
-	let html = await WebRequest.get(decodeURI(req.query.url)+"&hl=en")
+	let html
+	try{
+		html = await WebRequest.get(decodeURI(req.query.url)+"&hl=en")
+	}
+	catch(e){
+		res.send({error:true})
+		return null
+	}
 	let doc = sc.createDocument(html.content)
 	let showImage = req.query.showImage
-
 	var details = {
 		email: ((doc)=>{ 
-			console.log(doc.querySelectorAll("a.dev-link"))
-			let result
-			doc.querySelectorAll("a.dev-link").forEach(it=>{ if(it.innerHTML.toLowerCase().includes("email")) result = it })
+			let result = Array.from(doc.querySelectorAll("a")).find(it=>{ return it.href.toLowerCase().includes("mailto") })
 			return result ? result.getAttribute("href").split(":")[1] : ""
 		})(doc),
+		appId : req.query.appId,
 		url: decodeURI(req.query.url),
 		package: decodeURI(req.query.url).split("id=")[1],
-		name: doc.querySelector(".id-app-title") ? doc.querySelector(".id-app-title").innerHTML : null,
-		installs: doc.querySelector("[itemprop=numDownloads]") ? doc.querySelector("[itemprop=numDownloads]").innerHTML : null,
+		name: doc.querySelector("[itemprop='name']") ? striptags(doc.querySelector("[itemprop='name']").innerHTML) : null,
+		installs: doc.querySelector("[itemprop='numDownloads']") ? doc.querySelector("[itemprop='numDownloads']").innerHTML : null,
 		score: doc.querySelector(".score") ? parseFloat(doc.querySelector(".score").innerHTML) : null,
 		company: doc.querySelector("a.document-subtitle.primary > span") ? doc.querySelector("a.document-subtitle.primary > span").innerHTML : null,
 		website: ((doc)=>{ 

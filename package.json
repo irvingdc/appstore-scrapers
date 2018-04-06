@@ -3,14 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "ENV='dev' CONCURRENCY=2 node ./bin/www"
   },
   "dependencies": {
-    "@serverless-chrome/lambda": "^1.0.0-5",
     "body-parser": "~1.17.1",
     "btoa": "^1.1.2",
-    "chrome-launcher": "^0.8.0",
-    "chromeless": "^1.3.0",
     "cookie-parser": "~1.4.3",
     "cors": "~2.8.4",
     "debug": "~2.6.3",
@@ -23,6 +21,7 @@
     "serve-favicon": "~2.4.2",
     "string-similarity": "^1.2.0",
     "striptags": "^3.1.0",
+    "throng": "^4.0.0",
     "web-request": "^1.0.7"
   }
 }

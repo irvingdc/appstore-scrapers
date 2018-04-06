@@ -53,7 +53,7 @@ module.exports = {
 	        results.forEach(async (it) => {
 
 	        	//TODO: implement a deep search to open all links and scrape the package name from there
-	        	it.packageFound = it.deepSearch ? "" : packageSelector(it)
+	        	it.packageFound = it.deepSearch ? "" : (packageSelector ? packageSelector(it) : "")
 
 				it.nameSimilarity = stringSimilarity.compareTwoStrings(it.text.replace(/[^a-z0-9]/gi,''), appName.replace(/[^a-z0-9]/gi,''))
 				if(it.nameSimilarity > bestResultByName.nameSimilarity) bestResultByName = it

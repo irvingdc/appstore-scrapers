@@ -43,7 +43,7 @@ module.exports = {
 	        	}
 	        	else element = it
 
-				it.packageFound = packageSelector(element)
+				it.packageFound = packageSelector ? packageSelector(element) : ""
 
 				it.nameSimilarity = stringSimilarity.compareTwoStrings(it.text.replace(/[^a-z0-9]/gi,''), appName.replace(/[^a-z0-9]/gi,''))
 				if(it.nameSimilarity > bestResultByName.nameSimilarity) bestResultByName = it
@@ -74,7 +74,7 @@ module.exports = {
 						bestResult.styledDownloads = fn.numberWithCommas(bestResult.downloads)
 					}
 
-					bestResult.text = bestResult.text.replace(/(\r\n|\n|\r)/gm,"").replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "")
+					if(bestResult) bestResult.text = bestResult.text.replace(/(\r\n|\n|\r)/gm,"").replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "")
 
 					resolve(bestResult)
 				}
