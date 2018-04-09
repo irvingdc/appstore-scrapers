@@ -19,7 +19,7 @@ module.exports = {
 		else{
 			links = [].map.call(
 		      doc.querySelectorAll(selector),
-		      a => ({text: striptags(a.innerHTML), href: ( /^(http+?)(s\b|\b)(:\/\/)/.test(a.href) ? a.href : location+a.href)})
+		      a => ({text: striptags(a.innerHTML).replace(/(\r\n|\n|\r)/gm,"").replace(/\s+/g, " ").replace(/^\s+|\s+$/g, ""), href: ( /^(http+?)(s\b|\b)(:\/\/)/.test(a.href) ? a.href : location+a.href)})
 		    )
 		}
 		return links
@@ -28,11 +28,17 @@ module.exports = {
 		const dom = new JSDOM(htmlString)
 		return dom.window.document
 	},
+	setDownloads: async function(bestResult, downloadsSelector){
+		let html = await WebRequest.get(bestResult.href)
+		let doc = this.createDocument(html.content)
+		let downloads = doc.querySelectorAll(downloadsSelector)[0].innerHTML
+		console.log("downloads: "+downloads)
+		bestResult.downloads = fn.chineseToInternationalNumbers(downloads)
+		bestResult.styledDownloads = fn.numberWithCommas(bestResult.downloads)
+		return bestResult
+	},
 	getBestMatch: function(results, appName, appFullName, appPackage, downloadsSelector, packageSelector, deepSearch){
-
-		var bestResult, bestResultByName, bestResultByFullName, bestResultByPackage, count = 0
-		bestResult = bestResultByName = bestResultByFullName = bestResultByPackage = {text: "", href: "", packageSimilarity:0, nameSimilarity:0, fullNameSimilarity:0}
-
+		var bestResult = {text: "", href: "", similarity:0}, count = 0, sim1 = 0, sim2 = 0
 		return new Promise(async (resolve, reject) => {  
 			if(results.length == 0) resolve(null)
 	        results.forEach(async (it) => {
@@ -42,7 +48,6 @@ module.exports = {
 					element = this.createDocument(html.content)
 	        	}
 	        	else element = it
-
 				it.packageFound = packageSelector ? packageSelector(element) : ""
 
 				it.nameSimilarity = stringSimilarity.compareTwoStrings(it.text.replace(/[^a-z0-9]/gi,''), appName.replace(/[^a-z0-9]/gi,''))
@@ -78,7 +83,6 @@ module.exports = {
 
 					resolve(bestResult)
 				}
-
 			})	
 	    })
 	}

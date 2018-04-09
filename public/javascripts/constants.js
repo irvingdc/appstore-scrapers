@@ -62,26 +62,16 @@ module.exports = {
 		targetSelector: "a.lm_soft_icon",
 		downloadsSelector: null,
 		async: true,
-		deepSearch: true,
-		packageSelector: function(doc){
-			return ""
-		}
+		deepSearch: false,
+		packageSelector: false
 	},
 	huawei: {
 		searchUrl: "http://appstore.huawei.com/search/",
 		targetSelector: "h4.title a",
 		downloadsSelector: 'span[class="grey sub"]',
 		async: false,
-		deepSearch: true,
-		packageSelector: function(doc){
-			return ""
-			/*
-			let package
-			doc.querySelector(".mkapp-btn").getAttribute("dlurl").split("/").forEach((it)=>{
-				if(it.includes(".apk")) package = it.split(".").slice(0,-2).join(".")
-			})
-			return package*/
-		}
+		deepSearch: false,
+		packageSelector: false
 	},
 	lenovo: {
 		searchUrl: "http://www.lenovomm.com/search/index.html?q=",
@@ -109,16 +99,7 @@ module.exports = {
 		downloadsSelector: null,
 		async: false,
 		deepSearch: false,
-		packageSelector: function(doc){
-			return "" //unfortunately it doesn't display the package name
-		}
-	},
-	oppo: { //deleted??
-		searchUrl: "http://store.oppomobile.com/search/do.html?keyword=",
-		targetSelector: "a",
-		downloadsSelector: "div.soft_info_nums",
-		async: false,
-		
+		packageSelector: false
 	},
 	pp: {
 		searchUrl: "https://www.25pp.com/ios/search_app_0/",
@@ -126,9 +107,7 @@ module.exports = {
 		downloadsSelector: "div.app-info div.app-downs",
 		async: false,
 		deepSearch: false,
-		packageSelector: function(doc){
-			return "" //unfortunately it doesn't display the package name
-		}
+		packageSelector: false
 	},
 	sogou: {
 		searchUrl: "http://zhushou.sogou.com/apps/search.html?key=",
@@ -187,8 +166,6 @@ module.exports = {
 		downloadsSelector: "li.item-3 span:nth-child(2)",
 		async: false,
 		deepSearch: false,
-		packageSelector: function(el){
-			return "" //unfortunately it doesn't display the package name
-		}
+		packageSelector: false
 	},
 }

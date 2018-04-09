@@ -52,12 +52,6 @@ async function run(req, res, next) {
 }
 
 router.get('/', function(req, res, next) { 
-	try{
-		run(req,res,next) 
-	}	
-	catch(e){
-		res.send({error:true})
-	}
-	
+	run(req,res,next) 
 })
 module.exports = router
