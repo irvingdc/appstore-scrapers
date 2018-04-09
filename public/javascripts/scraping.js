@@ -48,28 +48,39 @@ module.exports = {
 					element = this.createDocument(html.content)
 	        	}
 	        	else element = it
-	        	count += 1
-	        	if(packageSelector){
-					it.packageFound = packageSelector(element)
-					it.similarity = stringSimilarity.compareTwoStrings(it.packageFound, appPackage)
-					if(it.similarity > bestResult.similarity) bestResult = it
-					if(count == results.length && bestResult.similarity < PACKAGE_SIMILARITY_LIMIT) bestResult = null
-				}
-				else{
-					if (fn.isChineseText(it.text)) {
-						it.similarity = fn.getChineseSimilarity(it.text, appFullName)
-					}
-					else{
-						sim1 = stringSimilarity.compareTwoStrings(it.text, appFullName)
-						sim2 = stringSimilarity.compareTwoStrings(it.text, appName)
-						it.similarity = sim1 > sim2 ? sim1 : sim2
-					}
-					if(it.similarity > bestResult.similarity) bestResult = it
-					if(count == results.length && bestResult.similarity < NAME_SIMILARITY_LIMIT) bestResult = null
-				}
-				console.log(bestResult)
+				it.packageFound = packageSelector ? packageSelector(element) : ""
+
+				it.nameSimilarity = stringSimilarity.compareTwoStrings(it.text.replace(/[^a-z0-9]/gi,''), appName.replace(/[^a-z0-9]/gi,''))
+				if(it.nameSimilarity > bestResultByName.nameSimilarity) bestResultByName = it
+
+				it.fullNameSimilarity = stringSimilarity.compareTwoStrings(it.text.replace(/[^a-z0-9]/gi,''), appFullName.replace(/[^a-z0-9]/gi,''))
+				if(it.fullNameSimilarity > bestResultByFullName.fullNameSimilarity) bestResultByFullName = it
+
+				it.packageSimilarity = stringSimilarity.compareTwoStrings(it.packageFound.replace(/[^a-z0-9]/gi,''), appPackage.replace(/[^a-z0-9]/gi,''))
+				if(it.packageSimilarity > bestResultByPackage.packageSimilarity) bestResultByPackage = it
+				
+				count += 1
 				if(count == results.length){
-					if(downloadsSelector && bestResult != null) bestResult = await this.setDownloads(bestResult, downloadsSelector)
+
+					if(bestResultByPackage.packageSimilarity >= PACKAGE_SIMILARITY_LIMIT) 
+						bestResult = bestResultByPackage
+					else if(bestResultByName.nameSimilarity >= NAME_SIMILARITY_LIMIT) 
+						bestResult = bestResultByName
+					else if(bestResultByFullName.fullNameSimilarity >= NAME_SIMILARITY_LIMIT) 
+						bestResult = bestResultByFullName
+					else bestResult = null
+
+					if(downloadsSelector && bestResult != null){
+						let html = await WebRequest.get(bestResult.href)
+						let doc = this.createDocument(html.content)
+						let downloads = doc.querySelectorAll(downloadsSelector)[0].innerHTML
+						console.log("downloads: "+downloads)
+						bestResult.downloads = fn.chineseToInternationalNumbers(downloads)
+						bestResult.styledDownloads = fn.numberWithCommas(bestResult.downloads)
+					}
+
+					if(bestResult) bestResult.text = bestResult.text.replace(/(\r\n|\n|\r)/gm,"").replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "")
+
 					resolve(bestResult)
 				}
 			})	

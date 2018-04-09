@@ -57,17 +57,39 @@ module.exports = {
 		return new Promise(async (resolve, reject) => {  
 			if(results.length == 0) resolve(null)
 	        results.forEach(async (it) => {
-	        	count += 1
-	        	if(packageSelector){
-	        		//TODO: implement a deep search to open all links and scrape the package name from there
-					it.packageFound = it.deepSearch ? "" : packageSelector(it)
-					it.similarity = stringSimilarity.compareTwoStrings(it.packageFound, appPackage)
-					if(it.similarity > bestResult.similarity) bestResult = it
-					if(count == results.length && bestResult.similarity < PACKAGE_SIMILARITY_LIMIT) bestResult = null
-				}
-				else{
-					if (fn.isChineseText(it.text)) {
-						it.similarity = fn.getChineseSimilarity(it.text, appFullName)
+         	//TODO: implement a deep search to open all links and scrape the package name from there
+	        	it.packageFound = it.deepSearch ? "" : (packageSelector ? packageSelector(it) : "")
+
+				it.nameSimilarity = stringSimilarity.compareTwoStrings(it.text.replace(/[^a-z0-9]/gi,''), appName.replace(/[^a-z0-9]/gi,''))
+				if(it.nameSimilarity > bestResultByName.nameSimilarity) bestResultByName = it
+
+				it.fullNameSimilarity = stringSimilarity.compareTwoStrings(it.text.replace(/[^a-z0-9]/gi,''), appFullName.replace(/[^a-z0-9]/gi,''))
+				if(it.fullNameSimilarity > bestResultByFullName.fullNameSimilarity) bestResultByFullName = it
+
+				it.packageSimilarity = stringSimilarity.compareTwoStrings(it.packageFound.replace(/[^a-z0-9]/gi,''), appPackage.replace(/[^a-z0-9]/gi,''))
+				if(it.packageSimilarity > bestResultByPackage.packageSimilarity) bestResultByPackage = it
+				count += 1
+
+				if(count == results.length){
+					
+					if(bestResultByPackage.packageSimilarity >= PACKAGE_SIMILARITY_LIMIT) 
+						bestResult = bestResultByPackage
+					else if(bestResultByName.nameSimilarity >= NAME_SIMILARITY_LIMIT) 
+						bestResult = bestResultByName
+					else if(bestResultByFullName.fullNameSimilarity >= NAME_SIMILARITY_LIMIT) 
+						bestResult = bestResultByFullName
+					else bestResult = null
+
+					if(downloadsSelector && bestResult != null){
+
+						await page.goto(bestResult.href)
+						await page.waitForSelector(downloadsSelector)
+
+						let downloads = await page.evaluate((downloadsSelector) => {
+							return document.querySelector(downloadsSelector).innerHTML
+						},downloadsSelector)
+						bestResult.downloads = fn.chineseToInternationalNumbers(downloads)
+						bestResult.styledDownloads = fn.numberWithCommas(bestResult.downloads)
 					}
 					else{
 						sim1 = stringSimilarity.compareTwoStrings(it.text, appFullName)
