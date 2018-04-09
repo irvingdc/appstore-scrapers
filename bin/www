@@ -6,7 +6,7 @@
 const throng = require('throng');
 
 throng({
-  workers: process.env.CONCURRENCY || 1,
+  workers: process.env.CONCURRENCY || 2,
   lifetime: Infinity
 }, start);
 
@@ -14,7 +14,7 @@ function start(){
   var app = require('../app');
   var debug = require('debug')('scrapers:server');
   var http = require('http');
-  var port = normalizePort(process.env.PORT) || process.env.ENV == 'dev' ? '4000' : '3000';
+  var port = normalizePort(process.env.PORT) || process.env.ENV == 'dev' ? '4000' : '5000';
   app.set('port', port);
   var server = http.createServer(app);
   server.listen(port);
