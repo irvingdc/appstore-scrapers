@@ -10,7 +10,7 @@ async function run(req, res, next) {
 
 	let appName = decodeURI(req.query.appName).split("-")[0]
 	let appFullName = decodeURI(req.query.appFullName)
-	console.log("SEARCHING FOR APP "+appName)
+	console.log("SEARCHING FOR APP "+appName+" IN "+req.query.store)
 	let pkg = req.query.package
 	let appstore = constants[req.query.store]
 	let results = []
@@ -27,7 +27,7 @@ async function run(req, res, next) {
 					if(r) r.storeId = req.query.storeId
 					res.send(r) 
 				},async (error)=>{ 
-					res.send(error) 
+					res.send({error:true}) 
 				})
 			page.close();
 		}
@@ -38,8 +38,8 @@ async function run(req, res, next) {
 				.then((r)=>{ 
 					console.log(r)
 					if(r) r.storeId = req.query.storeId
-					res.send(r) 
-				},(error)=>{ res.send(error) })
+					res.send({appId:req.query.appId,...r}) 
+				},(error)=>{ res.send({error:true}) })
 		}
 	}
 	catch(e){
@@ -49,9 +49,6 @@ async function run(req, res, next) {
 		console.log("----------------------------------- Error -----------------------------------")
 		res.send({error:true})
 	}
-
-		
-
 }
 
 router.get('/', function(req, res, next) { 

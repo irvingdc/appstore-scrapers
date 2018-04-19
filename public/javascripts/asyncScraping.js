@@ -53,7 +53,8 @@ module.exports = {
 		return bestResult
 	},
 	getBestMatch: function(page, results, appName, appFullName, appPackage, downloadsSelector, packageSelector, deepSearch){
-		var bestResult = {text: "", href: "", similarity:0}, count = 0, sim1 = 0, sim2 = 0
+		var bestResult, bestResultByName, bestResultByFullName, bestResultByPackage, count = 0
+		bestResult = bestResultByName = bestResultByFullName = bestResultByPackage = {text: "", href: "", packageSimilarity:0, nameSimilarity:0, fullNameSimilarity:0}
 		return new Promise(async (resolve, reject) => {  
 			if(results.length == 0) resolve(null)
 	        results.forEach(async (it) => {
