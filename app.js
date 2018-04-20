@@ -32,7 +32,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 //setting up views
-for (let view of ["general","google","amazonCategory","googleDetails","googleRelatedApps","amazonDetails"]) app.use(mainRoute+view, require('./routes/'+view));
+for (let view of ["general","google","amazonCategory","generalDetails","googleDetails","googleRelatedApps","amazonDetails"]) app.use(mainRoute+view, require('./routes/'+view));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
