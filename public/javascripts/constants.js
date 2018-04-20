@@ -65,13 +65,11 @@ module.exports = {
 		deepSearch: false,
 		packageSelector: false
 	},
-	huawei: {
-		searchUrl: "http://appstore.huawei.com/search/",
-		targetSelector: "h4.title a",
-		downloadsSelector: 'span[class="grey sub"]',
-		async: false,
-		deepSearch: false,
-		packageSelector: false
+	eoe:{
+		downloadsSelector: function(doc){
+			let element = Array.from(doc.querySelectorAll(".info_appintr .clearfix em")).filter(it=>{return it.innerHTML.includes("下载次数")})
+			return element ? element[0].innerHTML.split(":")[0] : null
+		}
 	},
 	lenovo: {
 		searchUrl: "http://www.lenovomm.com/search/index.html?q=",
@@ -140,6 +138,13 @@ module.exports = {
 			return el.href.split("apkName=")[1]
 		}
 	},
+	vivo: {
+		async: false,
+		downloadsSelector : function(doc){
+			let element = striptags(doc.querySelector(".item-introduce-download").innerHTML).split("M")
+			return element ? element[1] : null
+		}
+	},  
 	wandoujia: {
 		searchUrl: "http://www.wandoujia.com/search?key=",
 		targetSelector: "h2.app-title-h2 a",
@@ -168,4 +173,18 @@ module.exports = {
 		deepSearch: false,
 		packageSelector: false
 	},
+	himarket : {}, //nothing. use baidu
+	_91: {}, //nothing use baidu
+	oppo : {}, // nothing
+	
+
+
+
+
+
+
+
+
+
+
 }
