@@ -20,8 +20,7 @@ async function getDetails(appstore, url){
 		let downloads
 		if(typeof(appstore.downloadsSelector)=="function") downloads = appstore.downloadsSelector(doc)
 		else if(doc.querySelector(appstore.downloadsSelector)) downloads = doc.querySelector(appstore.downloadsSelector).innerHTML
-		return { downloads: downloads ? fn.chineseToInternationalNumbers(downloads) : undefined }
-		//return doc
+		return { downloads: downloads ? fn.chineseToInternationalNumbers(downloads) : null }
 	}
 	catch(e){
 		console.log("-- ERROR --> ",e)
@@ -33,19 +32,15 @@ async function getDetailsAsync(appstore, url){
 	var page
 	try{
 		page = await global.browser.newPage()
-		console.log("opening new page")
-		// await page.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36")
 		await page.goto(url)
-		console.log("waiting")
 		if(typeof(appstore.downloadsSelector!="function")) await page.waitForSelector(appstore.downloadsSelector)
-		console.log("finished waiting")
-		let result = await page.evaluate((appstore) => {
+		let downloads = await page.evaluate((appstore) => {
 			let downloads
 			if(typeof(appstore.downloadsSelector)=="function") downloads = appstore.downloadsSelector(document)
 			else if(document.querySelector(appstore.downloadsSelector)) downloads = document.querySelector(appstore.downloadsSelector).innerHTML
-			return document.documentElement.innerHTML
+			return downloads
 		},appstore)
-		return result//{ downloads : result ? fn.chineseToInternationalNumbers(result) : undefined }
+		return { downloads: downloads ? fn.chineseToInternationalNumbers(downloads) : null }
 
 	}
 	catch(e){
@@ -57,7 +52,11 @@ async function getDetailsAsync(appstore, url){
 
 router.get('/', async (req, res, next) => { 
 	let result = await run(req,res,next)
-	res.send(result)
+	res.send({
+		...result, 
+		storeId: req.query.storeId, 
+		appId: req.query.appId
+	})
 })
 
 module.exports = router
