@@ -37,10 +37,11 @@ module.exports = {
 		})	
 	},
 	isChineseText: function(str){ //checks if at least 70% of the word is chinese
-		return str.match(/[\u3400-\u9FBF]/g) ? str.match(/[\u3400-\u9FBF]/g).length/str.length > 0.7 : false 
+		let match = str.match(/[\u3400-\u9FBF]/g)
+		return match ? match.length/str.length > 0.7 : false 
 	},
 	getChineseSimilarity: function(a,b){
-		let r = function(t){ return t.replace(/[a-zA-Z0-9]/g,"") }
+		let r = t => t.replace(/[a-zA-Z0-9]/g,"")
 		var [L,S] = a.length > b.length ? [r(a),r(b)] : [r(b),r(a)], c = 0
 		p : for (s of S) for (l of L) if(s==l) { c++; continue p }
  		return S.length >= 0.5*L.length ? c/S.length : 0

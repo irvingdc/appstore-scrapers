@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "ENV='dev' CONCURRENCY=2 node ./bin/www"
+    "test": "ENV='dev' CONCURRENCY=1 node ./bin/www"
   },
   "dependencies": {
     "body-parser": "~1.17.1",
@@ -22,6 +22,7 @@
     "string-similarity": "^1.2.0",
     "striptags": "^3.1.0",
     "throng": "^4.0.0",
+    "underscore": "^1.9.1",
     "web-request": "^1.0.7"
   }
 }

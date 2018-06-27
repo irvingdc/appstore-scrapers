@@ -10,43 +10,54 @@ async function run(req, res, next) {
 
 	let appName = decodeURI(req.query.appName).split("-")[0]
 	let appFullName = decodeURI(req.query.appFullName)
-	console.log("SEARCHING FOR APP "+appName+" IN "+req.query.store)
 	let pkg = req.query.package
-	let appstore = constants[req.query.store]
+	let store = req.query.store
+	let appstore = constants[store]
 	let results = []
 	let bestResult = {}
 	var page = {}
 
 	try{
-		if(appstore.async){
+		if(store == "vivo" || store == "huawei" || store == "oppo"){
+			res.send({
+				appId: req.query.appId,
+				index: appstore.index,
+				store: appstore.fullName,
+				storeId: req.query.storeId
+			}) 
+		}
+		else if(appstore.async){
 			page = await global.browser.newPage()
 			results = await asc.getResultsList(page, appstore.searchUrl, appName, appstore.targetSelector, req.query.store)
-			console.log(results)
-			await asc.getBestMatch(page, results, appName, appFullName, pkg, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
-				.then(async (r)=>{ 
-					if(r) r.storeId = req.query.storeId
-					res.send(r) 
-				},async (error)=>{ 
-					res.send({error:true}) 
-				})
-			page.close();
+			sc.getBestMatch(results, appName, appFullName, pkg, appstore)
+				.then((r)=>{ 
+					if(!r) r = {}
+					page.close()
+					res.send({
+						appId: req.query.appId,
+						index: appstore.index,
+						store: appstore.fullName,
+						storeId: req.query.storeId,
+					...r}) 
+				},(error)=>{ res.send({error:true}) })
 		}
 		else{
 			results = await sc.getResultsList(appstore.searchUrl, appName, appstore.targetSelector, appstore.customLinksSelector)
-			console.log(results)
-			sc.getBestMatch(results, appName, appFullName, pkg, appstore.downloadsSelector, appstore.packageSelector, appstore.deepSearch)
+			sc.getBestMatch(results, appName, appFullName, pkg, appstore)
 				.then((r)=>{ 
-					console.log(r)
-					if(r) r.storeId = req.query.storeId
-					res.send({appId:req.query.appId,...r}) 
+					if(!r) r = {}
+					res.send({
+						appId: req.query.appId,
+						index: appstore.index,
+						store: appstore.fullName,
+						storeId: req.query.storeId,
+					...r}) 
 				},(error)=>{ res.send({error:true}) })
 		}
 	}
 	catch(e){
 		if(appstore.async) page.close()
-		console.log("----------------------------------- Error -----------------------------------")
-		console.log(e)
-		console.log("----------------------------------- Error -----------------------------------")
+		console.log("ERROR WHILE SCRAPING --------> ",e)
 		res.send({error:true})
 	}
 }
