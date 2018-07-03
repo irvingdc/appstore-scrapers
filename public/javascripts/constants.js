@@ -24,9 +24,8 @@ module.exports = {
 			return doc.querySelector("a.Mbtn").getAttribute("packagename")
 		},
 		versionSelector: function(doc){
-			let rows = Array.from(doc.querySelectorAll(".softIntro_part .prop_area li"))
-			let element = rows && rows.length ? rows.find(it=>striptags(it.innerHTML).includes("版本")) : null
-			return element ? striptags(element.innerHTML).replace(/[\u3400-\u9FBF()：:;& a-zA-Z]/g,'') : "" 
+			let element = doc.querySelector(".softIntro_part .prop_area li")
+			return element ? striptags(element.innerHTML).replace(/[^.\d]+/g,'') : "" 
 		}
 	},
 	_360: {
@@ -50,7 +49,7 @@ module.exports = {
 		versionSelector: function(doc){
 			let rows = Array.from(doc.querySelectorAll("div.base-info td"))
 			let element = rows && rows.length ? rows.find(it=>striptags(it.innerHTML).includes("版本")) : null
-			return element ? striptags(element.innerHTML).replace(/[\u3400-\u9FBF()：:;& a-zA-Z]/g,'') : "" 
+			return element ? striptags(element.innerHTML).replace(/[^.\d]+/g,'') : "" 
 		}
 
 	},
@@ -67,7 +66,7 @@ module.exports = {
 		},
 		versionSelector: function(doc){
 			let el = doc.querySelector(".app_detail_version")
-			return el && el.innerHTML ? el.innerHTML.replace(/[\u3400-\u9FBF()：:;& a-zA-Z]/g,"") : ""
+			return el && el.innerHTML ? el.innerHTML.replace(/[^.\d]+/g,"") : ""
 		}
 	},
 	appchina: {
@@ -82,7 +81,7 @@ module.exports = {
 		versionSelector: function(doc){
 			let rows = Array.from(doc.querySelectorAll(".intro .art-content"))
 			let element = rows && rows.length ? rows.find(it=>striptags(it.innerHTML).includes("版本")) : null
-			return element ? striptags(element.innerHTML).replace(/[\u3400-\u9FBF()：:;& a-zA-Z]/g,'') : "" 
+			return element ? striptags(element.innerHTML).replace(/[^.\d]+/g,'') : "" 
 		}
 	},
 	baidu: {
@@ -98,7 +97,7 @@ module.exports = {
 		},
 		versionSelector: function(doc){
 			let element = doc.querySelector("div.detail span.version")
-			return element && element.innerHTML ? element.innerHTML.replace(/[\u3400-\u9FBF()：:;& a-zA-Z]/g,"") : ""
+			return element && element.innerHTML ? element.innerHTML.replace(/[^.\d]+/g,"") : ""
 		}
 	},
 	cheering: {
@@ -109,9 +108,10 @@ module.exports = {
 		deepSearch: false,
 		packageSelector: false,
 		versionSelector: function(doc){
+			//TODO: wait for the page to lead with puppeteer before reading the information
 			let list = Array.from(doc.querySelectorAll(".sdmr_info li"))
 			let index = list && list.length ? list.findIndex(it=>it.innerHTML ? _.unescape(it.innerHTML).includes("版本") : false) : null
-			return index && list[index] && list[index].innerHTML ? list[index].querySelector("span:last-child").innerHTML.replace(/[\u3400-\u9FBF()：:;& a-zA-Z]/g,"") || "" : ""
+			return index && list[index] && list[index].innerHTML ? list[index].querySelector("span:last-child").innerHTML.replace(/[^.\d]+/g,"") || "" : ""
 		}
 	},
 	eoe:{
@@ -130,12 +130,12 @@ module.exports = {
 			return doc.querySelector("ul.detailTop2 a").getAttribute("data-pkgName")
 		},
 		versionSelector: function(doc){
-			let rows = Array.from(doc.querySelectorAll("f12 fgrey4 txtCut"))
+			let rows = Array.from(doc.querySelectorAll(".f12.fgrey4.txtCut"))
 			let element = rows && rows.length ? rows.find(it=>striptags(it.innerHTML).includes("版本")) : null
-			return element ? striptags(element.innerHTML).replace(/[\u3400-\u9FBF()：:;& a-zA-Z]/g,'') : "" 
+			return element ? striptags(element.innerHTML).replace(/[^.\d]+/g,'') : "" 
 		}
 	},
-	meizu: { //verify this, it may need a custom function
+	meizu: {
 		searchUrl: "http://app.meizu.com/apps/public/search?keyword=",
 		targetSelector: "a.ellipsis[packageName]",
 		downloadsSelector: "div.app_content span",
@@ -158,8 +158,8 @@ module.exports = {
 		packageSelector: false,
 		versionSelector: function(doc){
 			let rows = Array.from(doc.querySelectorAll(".tor_msg_ealine"))
-			let element = rows && rows.length ? rows.find(it=>_.unescape(striptags(it.innerHTML)).includes("版本")) : null
-			return element ? _.unescape(striptags(element.innerHTML)).replace(/[\u3400-\u9FBF()：:;& a-zA-Z]/g,'') : "" 
+			let element = rows && rows.length ? rows.find(it=>_.unescape(striptags(it.innerHTML)).replace(/ /g,'').includes("本")) : null
+			return element ? _.unescape(striptags(element.innerHTML)).replace(/[^.\d]+/g,'') : "" 
 		}
 	},
 	pp: {
@@ -200,7 +200,7 @@ module.exports = {
 		versionSelector: function(doc){
 			let rows = Array.from(doc.querySelectorAll(".appinfo .detail .info td"))
 			let element = rows && rows.length ? rows.find(it=>striptags(it.innerHTML).includes("版本")) : null
-			return element ? striptags(element.innerHTML).replace(/[\u3400-\u9FBF()：:;& a-zA-Z]/g,'') : "" 
+			return element ? striptags(element.innerHTML).replace(/[^.\d]+/g,'') : "" 
 		}
 	},
 	tencent: {
@@ -217,7 +217,7 @@ module.exports = {
 		versionSelector: function(doc){
 			let list = Array.from(doc.querySelectorAll(".det-othinfo-container div"))
 			let index = list && list.length ? list.findIndex(it=>it.innerHTML ? it.innerHTML.includes("版本号") : false) + 1 : null
-			return index && list[index] && list[index].innerHTML ? list[index].innerHTML.replace(/[\u3400-\u9FBF()：:;& a-zA-Z]/g,"") || "" : ""
+			return index && list[index] && list[index].innerHTML ? list[index].innerHTML.replace(/[^.\d]+/g,"") || "" : ""
 		}
 	},
 	vivo: {
@@ -242,7 +242,7 @@ module.exports = {
 			let block = doc.querySelector(".infos-list")
 			let list = block && block.childNodes ? Array.from(block.childNodes) : null
 			let index = list && list.length ? list.findIndex(it=>it.innerHTML ? it.innerHTML.includes("版本") : false) + 1 : null
-			return index && list[index] && list[index].innerHTML ? list[index].innerHTML.replace(/[\u3400-\u9FBF()：:;& a-zA-Z]/g,"") || "" : ""
+			return index && list[index] && list[index].innerHTML ? list[index].innerHTML.replace(/[^.\d]+/g,"") || "" : ""
 		}
 	},
 	xiaomi: {

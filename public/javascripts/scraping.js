@@ -79,6 +79,11 @@ module.exports = {
 						let downloads = store.downloadsSelector ? doc.querySelectorAll(store.downloadsSelector)[0].innerHTML : null
 						let version = store.versionSelector && typeof store.versionSelector == "function" ? store.versionSelector(doc) : ""
 						console.log("downloads: "+downloads)
+						if(typeof version == "object"){
+							if(version.length){
+								version.forEach(it=>console.log(it))
+							}
+						}
 						console.log("version: "+version)
 						bestResult.version = version
 						bestResult.downloads = downloads ? fn.chineseToInternationalNumbers(downloads) : null
