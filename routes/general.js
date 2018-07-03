@@ -8,8 +8,8 @@ const constants = require('../public/javascripts/constants')
 
 async function run(req, res, next) {
 
-	let appName = decodeURI(req.query.appName).split("-")[0]
-	let appFullName = decodeURI(req.query.appFullName)
+	let appName = decodeURIComponent(req.query.appName).split("-")[0]
+	let appFullName = decodeURIComponent(req.query.appFullName)
 	console.log("SEARCHING FOR APP "+appName+" IN "+req.query.store)
 	let pkg = req.query.package
 	let appstore = constants[req.query.store]
