@@ -7,7 +7,6 @@ const puppeteer = require('puppeteer');
 const constants = require('../public/javascripts/constants')
 
 async function run(req, res, next) {
-
 	let appName = decodeURIComponent(req.query.appName).split("-")[0]
 	let appFullName = decodeURIComponent(req.query.appFullName)
 	console.log("SEARCHING FOR APP "+appName+" IN "+req.query.store)
