@@ -10,8 +10,8 @@ const NAME_SIMILARITY_LIMIT = 0.9
 
 module.exports = {
 	getResultsList: async function(url,search,selector, customLinksSelector = null){
-		console.log("searching..."+url+encodeURI(search))
-		let html = await WebRequest.get(url+encodeURI(search))
+		console.log("searching..."+url+encodeURIComponent(search))
+		let html = await WebRequest.get(url+encodeURIComponent(search))
 		let doc = this.createDocument(html.content)
 		let location = url.match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)/gm)
 		let links

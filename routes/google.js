@@ -7,7 +7,7 @@ const NUMBER_GOOGLE_RESULTS = 6
 
 async function run(req, res, next) {
 
-	let url = 'https://play.google.com/store/search?hl=en&q='+req.query.appName
+	let url = 'https://play.google.com/store/search?hl=en&q='+encodeURIComponent(req.query.appName)
 	let selector = '.card.apps'
 
 	try{

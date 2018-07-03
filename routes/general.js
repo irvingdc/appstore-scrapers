@@ -8,8 +8,8 @@ const constants = require('../public/javascripts/constants')
 
 async function run(req, res, next) {
 
-	let appName = decodeURI(req.query.appName).split("-")[0]
-	let appFullName = decodeURI(req.query.appFullName)
+	let appName = decodeURIComponent(req.query.appName).split("-")[0]
+	let appFullName = decodeURIComponent(req.query.appFullName)
 	let pkg = req.query.package
 	let store = req.query.store
 	let appstore = constants[store]
