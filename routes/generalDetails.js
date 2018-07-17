@@ -7,7 +7,8 @@ var fn = require('../public/javascripts/shared')
 const puppeteer = require('puppeteer')
 
 async function run(req, res, next) {
-	let appstore = constants[req.query.store]
+	console.log("GETTING STORE "+req.query.store)
+	let appstore = constants[req.query.store.toLowerCase()] || constants["_"+req.query.store.toLowerCase()]
 	let url = req.query.url
 	console.log("getting "+(()=>{return appstore.async ? "async" : "regular"})()+" url: "+url)
 	return appstore.async ? await getDetailsAsync(appstore, url) : await getDetails(appstore, url)
