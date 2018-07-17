@@ -1,5 +1,19 @@
 var striptags = require('striptags')
+var _ = require('underscore')
+
 module.exports = {
+	oppo: {
+		fullName: 'Oppo Software Store',
+		index: 4
+	},	
+	huawei: {
+		fullName: 'Huawei App Market',
+		index: 5
+	},
+	vivo: {
+		fullName: 'VIVO App Store',
+		index: 7
+	},
 	_2345: {
 		searchUrl: "http://zhushou.2345.com/index.php?c=web&d=doSearch&so=",
 		targetSelector: "a.trig:not([id])",
@@ -8,13 +22,19 @@ module.exports = {
 		deepSearch: true,
 		packageSelector: function(doc){
 			return doc.querySelector("a.Mbtn").getAttribute("packagename")
+		},
+		versionSelector: function(doc){
+			let element = doc.querySelector(".softIntro_part .prop_area li")
+			return element ? striptags(element.innerHTML).replace(/[^.\d]+/g,'') : "" 
 		}
 	},
 	_360: {
+		fullName: '360 Mobile Assistant',
 		searchUrl: "http://zhushou.360.cn/search/index/?kw=",
 		targetSelector: "h3 a",
 		downloadsSelector: "span.s-3",
 		async: false,
+		index: 2,
 		deepSearch: true,
 		packageSelector: function(doc){
 			let scriptContent
@@ -25,16 +45,28 @@ module.exports = {
 			})
 			eval(scriptContent)
 			return detail.pname
+		},
+		versionSelector: function(doc){
+			let rows = Array.from(doc.querySelectorAll("div.base-info td"))
+			let element = rows && rows.length ? rows.find(it=>striptags(it.innerHTML).includes("版本")) : null
+			return element ? striptags(element.innerHTML).replace(/[^.\d]+/g,'') : "" 
 		}
+
 	},
 	anzhi: {
+		fullName: 'Anzhi',
 		searchUrl: "http://www.anzhi.com/search.php?keyword=",
 		targetSelector: "span.app_name a",
 		downloadsSelector: "span.spaceleft",
 		async: false,
+		index: 10,
 		deepSearch: false,
 		packageSelector: function(el){
 			return el.href.split("/").slice(-1)[0].split("_")[1].replace(".html","")
+		},
+		versionSelector: function(doc){
+			let el = doc.querySelector(".app_detail_version")
+			return el && el.innerHTML ? el.innerHTML.replace(/[^.\d]+/g,"") : ""
 		}
 	},
 	appchina: {
@@ -45,17 +77,28 @@ module.exports = {
 		deepSearch: false,
 		packageSelector: function(el){
 			return el.href.split("/").slice(-1)[0]
+		},
+		versionSelector: function(doc){
+			let rows = Array.from(doc.querySelectorAll(".intro .art-content"))
+			let element = rows && rows.length ? rows.find(it=>striptags(it.innerHTML).includes("版本")) : null
+			return element ? striptags(element.innerHTML).replace(/[^.\d]+/g,'') : "" 
 		}
 	},
 	baidu: {
+		fullName: 'Baidu Mobile Assistant',
 		searchUrl: "http://shouji.baidu.com/s?wd=",
 		targetSelector: "a.app-name",
 		downloadsSelector: "span.download-num",
 		async: false,
+		index: 3,
 		deepSearch: true,
 		packageSelector: function(doc){
 			return doc.querySelector("span.one-setup-btn").getAttribute("data_package")
 		},
+		versionSelector: function(doc){
+			let element = doc.querySelector("div.detail span.version")
+			return element && element.innerHTML ? element.innerHTML.replace(/[^.\d]+/g,"") : ""
+		}
 	},
 	cheering: {
 		searchUrl: "http://apps.mycheering.com/WebPage/search_result.html?sword=",
@@ -63,7 +106,13 @@ module.exports = {
 		downloadsSelector: null,
 		async: true,
 		deepSearch: false,
-		packageSelector: false
+		packageSelector: false,
+		versionSelector: function(doc){
+			//TODO: wait for the page to lead with puppeteer before reading the information
+			let list = Array.from(doc.querySelectorAll(".sdmr_info li"))
+			let index = list && list.length ? list.findIndex(it=>it.innerHTML ? _.unescape(it.innerHTML).includes("版本") : false) : null
+			return index && list[index] && list[index].innerHTML ? list[index].querySelector("span:last-child").innerHTML.replace(/[^.\d]+/g,"") || "" : ""
+		}
 	},
 	eoe:{
 		downloadsSelector: function(doc){
@@ -79,9 +128,14 @@ module.exports = {
 		deepSearch: true,
 		packageSelector: function(doc){
 			return doc.querySelector("ul.detailTop2 a").getAttribute("data-pkgName")
+		},
+		versionSelector: function(doc){
+			let rows = Array.from(doc.querySelectorAll(".f12.fgrey4.txtCut"))
+			let element = rows && rows.length ? rows.find(it=>striptags(it.innerHTML).includes("版本")) : null
+			return element ? striptags(element.innerHTML).replace(/[^.\d]+/g,'') : "" 
 		}
 	},
-	meizu: { //verify this, it may need a custom function
+	meizu: {
 		searchUrl: "http://app.meizu.com/apps/public/search?keyword=",
 		targetSelector: "a.ellipsis[packageName]",
 		downloadsSelector: "div.app_content span",
@@ -89,6 +143,10 @@ module.exports = {
 		deepSearch: false,
 		packageSelector: function(el){
 			return el.package
+		},
+		versionSelector: function(doc){
+			let el = doc.querySelector(".app_download ul .noPointer")
+			return el ? el.innerHTML : ""
 		}
 	},
 	mm: {
@@ -97,15 +155,27 @@ module.exports = {
 		downloadsSelector: null,
 		async: false,
 		deepSearch: false,
-		packageSelector: false
+		packageSelector: false,
+		versionSelector: function(doc){
+			let rows = Array.from(doc.querySelectorAll(".tor_msg_ealine"))
+			let element = rows && rows.length ? rows.find(it=>_.unescape(striptags(it.innerHTML)).replace(/ /g,'').includes("本")) : null
+			return element ? _.unescape(striptags(element.innerHTML)).replace(/[^.\d]+/g,'') : "" 
+		}
 	},
 	pp: {
+		fullName: 'PP',
 		searchUrl: "https://www.25pp.com/ios/search_app_0/",
 		targetSelector: "a.app-title",
 		downloadsSelector: "div.app-info div.app-downs",
 		async: false,
+		index: 8,
 		deepSearch: false,
-		packageSelector: false
+		packageSelector: false,
+		versionSelector: function(doc){
+			let list = doc.querySelectorAll(".app-detail-info span strong")
+			let el = list && list.length ? list[2] : null
+			return el && el.innerHTML ? el.innerHTML.trim() : ""
+		}
 	},
 	sogou: {
 		searchUrl: "http://zhushou.sogou.com/apps/search.html?key=",
@@ -126,16 +196,28 @@ module.exports = {
 		},
 		packageSelector: function(el){
 			return el.package
+		},
+		versionSelector: function(doc){
+			let rows = Array.from(doc.querySelectorAll(".appinfo .detail .info td"))
+			let element = rows && rows.length ? rows.find(it=>striptags(it.innerHTML).includes("版本")) : null
+			return element ? striptags(element.innerHTML).replace(/[^.\d]+/g,'') : "" 
 		}
 	},
 	tencent: {
+		fullName: 'Tencent MyApp',
 		searchUrl: "http://android.myapp.com/myapp/search.htm?kw=",
 		targetSelector: "a.appName",
 		downloadsSelector: "div.det-ins-num",
 		async: true,
+		index: 1,
 		deepSearch: false,
 		packageSelector: function(el){
 			return el.href.split("apkName=")[1]
+		},
+		versionSelector: function(doc){
+			let list = Array.from(doc.querySelectorAll(".det-othinfo-container div"))
+			let index = list && list.length ? list.findIndex(it=>it.innerHTML ? it.innerHTML.includes("版本号") : false) + 1 : null
+			return index && list[index] && list[index].innerHTML ? list[index].innerHTML.replace(/[^.\d]+/g,"") || "" : ""
 		}
 	},
 	vivo: {
@@ -146,23 +228,38 @@ module.exports = {
 		}
 	},  
 	wandoujia: {
+		fullName: 'Wandoujia',
 		searchUrl: "http://www.wandoujia.com/search?key=",
 		targetSelector: "h2.app-title-h2 a",
 		downloadsSelector: "i[itemprop='interactionCount']",
 		async: false,
+		index: 9,
 		deepSearch: false,
 		packageSelector: function(el){
 			return el.href.split("/").slice(-1)[0]
+		},
+		versionSelector: function(doc){
+			let block = doc.querySelector(".infos-list")
+			let list = block && block.childNodes ? Array.from(block.childNodes) : null
+			let index = list && list.length ? list.findIndex(it=>it.innerHTML ? it.innerHTML.includes("版本") : false) + 1 : null
+			return index && list[index] && list[index].innerHTML ? list[index].innerHTML.replace(/[^.\d]+/g,"") || "" : ""
 		}
 	},
 	xiaomi: {
+		fullName: 'MIUI App Store',
 		searchUrl: "http://app.mi.com/search?keywords=",
 		targetSelector: "ul.applist li h5 a",
 		downloadsSelector: null,
 		async: false,
+		index: 6,
 		deepSearch: false,
 		packageSelector: function(el){
 			return el.href.split("&")[0].split("=")[1]
+		},
+		versionSelector: function(doc){
+			let list = Array.from(doc.querySelectorAll("div.details li"))
+			let index = list && list.length ? list.findIndex(it=>it.innerHTML ? it.innerHTML.includes("版本号") : false) + 1 : null
+			return index && list[index] ? list[index].innerHTML || "" : ""
 		}
 	},
 	zol: {
@@ -173,18 +270,4 @@ module.exports = {
 		deepSearch: false,
 		packageSelector: false
 	},
-	himarket : {}, //nothing. use baidu
-	_91: {}, //nothing use baidu
-	oppo : {}, // nothing
-	
-
-
-
-
-
-
-
-
-
-
 }

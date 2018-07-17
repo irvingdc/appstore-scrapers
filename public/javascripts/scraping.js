@@ -37,7 +37,8 @@ module.exports = {
 		bestResult.styledDownloads = fn.numberWithCommas(bestResult.downloads)
 		return bestResult
 	},
-	getBestMatch: function(results, appName, appFullName, appPackage, downloadsSelector, packageSelector, deepSearch){
+	getBestMatch: function(results, appName, appFullName, appPackage, store){
+
 		var bestResult, bestResultByName, bestResultByFullName, bestResultByPackage, count = 0
 		bestResult = bestResultByName = bestResultByFullName = bestResultByPackage = {text: "", href: "", packageSimilarity:0, nameSimilarity:0, fullNameSimilarity:0}
 
@@ -45,12 +46,12 @@ module.exports = {
 			if(results.length == 0) resolve(null)
 	        results.forEach(async (it) => {
 	        	let element
-	        	if(deepSearch){
+	        	if(store.deepSearch){
 	        		let html = await WebRequest.get(it.href)
 					element = this.createDocument(html.content)
 	        	}
 	        	else element = it
-				it.packageFound = packageSelector ? packageSelector(element) : ""
+				it.packageFound = store.packageSelector ? store.packageSelector(element) : ""
 
 				it.nameSimilarity = stringSimilarity.compareTwoStrings(it.text.replace(/[^a-z0-9]/gi,''), appName.replace(/[^a-z0-9]/gi,''))
 				if(it.nameSimilarity > bestResultByName.nameSimilarity) bestResultByName = it
@@ -72,13 +73,21 @@ module.exports = {
 						bestResult = bestResultByFullName
 					else bestResult = null
 
-					if(downloadsSelector && bestResult != null){
+					if((store.downloadsSelector || store.versionSelector) && bestResult != null){
 						let html = await WebRequest.get(bestResult.href)
 						let doc = this.createDocument(html.content)
-						let downloads = doc.querySelectorAll(downloadsSelector)[0].innerHTML
+						let downloads = store.downloadsSelector ? doc.querySelectorAll(store.downloadsSelector)[0].innerHTML : null
+						let version = store.versionSelector && typeof store.versionSelector == "function" ? store.versionSelector(doc) : ""
 						console.log("downloads: "+downloads)
-						bestResult.downloads = fn.chineseToInternationalNumbers(downloads)
-						bestResult.styledDownloads = fn.numberWithCommas(bestResult.downloads)
+						if(typeof version == "object"){
+							if(version.length){
+								version.forEach(it=>console.log(it))
+							}
+						}
+						console.log("version: "+version)
+						bestResult.version = version
+						bestResult.downloads = downloads ? fn.chineseToInternationalNumbers(downloads) : null
+						bestResult.styledDownloads = downloads ? fn.numberWithCommas(bestResult.downloads) : null
 					}
 
 					if(bestResult) bestResult.text = bestResult.text.replace(/(\r\n|\n|\r)/gm,"").replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "")
