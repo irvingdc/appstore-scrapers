@@ -108,7 +108,6 @@ module.exports = {
 		deepSearch: false,
 		packageSelector: false,
 		versionSelector: function(doc){
-			//TODO: wait for the page to lead with puppeteer before reading the information
 			let list = Array.from(doc.querySelectorAll(".sdmr_info li"))
 			let index = list && list.length ? list.findIndex(it=>it.innerHTML ? _.unescape(it.innerHTML).includes("版本") : false) : null
 			return index && list[index] && list[index].innerHTML ? list[index].querySelector("span:last-child").innerHTML.replace(/[^.\d]+/g,"") || "" : ""

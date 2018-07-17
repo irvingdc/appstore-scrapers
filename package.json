@@ -7,14 +7,14 @@
     "test": "ENV='dev' CONCURRENCY=1 node ./bin/www"
   },
   "dependencies": {
-    "body-parser": "~1.17.1",
+    "body-parser": "^1.18.3",
     "btoa": "^1.1.2",
     "cookie-parser": "~1.4.3",
     "cors": "~2.8.4",
     "debug": "~2.6.3",
-    "express": "~4.15.2",
+    "express": "^4.16.3",
     "jsdom": "^11.3.0",
-    "morgan": "~1.8.1",
+    "morgan": "^1.9.0",
     "node-base64-image": "^1.0.4",
     "pug": "~2.0.0-beta11",
     "puppeteer": "^1.1.0",
