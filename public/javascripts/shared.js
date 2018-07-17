@@ -45,5 +45,8 @@ module.exports = {
 		var [L,S] = a.length > b.length ? [r(a),r(b)] : [r(b),r(a)], c = 0
 		p : for (s of S) for (l of L) if(s==l) { c++; continue p }
  		return S.length >= 0.5*L.length ? c/S.length : 0
+	},
+	clean: function(string){
+		return string.replace(/[^a-z0-9]/gi,'')
 	}
 }

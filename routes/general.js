@@ -57,7 +57,6 @@ async function run(req, res, next) {
 	}
 	catch(e){
 		if(appstore.async) page.close()
-		console.log("ERROR WHILE SCRAPING --------> ",e)
 		res.send({error:true})
 	}
 }

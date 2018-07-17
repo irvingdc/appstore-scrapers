@@ -24,8 +24,7 @@ async function getDetails(appstore, url){
 		return { downloads: downloads ? fn.chineseToInternationalNumbers(downloads) : null }
 	}
 	catch(e){
-		console.log("-- ERROR --> ",e)
-		return {}
+		return { error: true }
 	}
 }
 
@@ -45,9 +44,8 @@ async function getDetailsAsync(appstore, url){
 
 	}
 	catch(e){
-		console.log("-- ERROR --> ",e)
 		page.close()
-		return {}
+		return { error: true }
 	}
 }
 

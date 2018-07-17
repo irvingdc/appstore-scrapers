@@ -24,7 +24,6 @@ async function run(req, res, next) {
 	      		 })
 		    ).slice(0, NUMBER_GOOGLE_RESULTS)
 		
-		//TODO: refactor this code to use promises and await/async properly
 		var count = 0
 		results.forEach(async (it, index) => {
 			it.imageData = await fn.getImageData(it.img)
