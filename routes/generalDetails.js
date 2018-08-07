@@ -16,14 +16,23 @@ async function run(req, res, next) {
 
 async function getDetails(appstore, url){
 	try{
+		console.log("appstore:",appstore)
+		console.log("url:",url)
 		let html = await WebRequest.get(url)
 		let doc = sc.createDocument(html.content)
-		let downloads
+		let downloads, version
+
+		if(appstore.versionSelector && typeof appstore.versionSelector == "function") version = appstore.versionSelector(doc)
+
 		if(typeof(appstore.downloadsSelector)=="function") downloads = appstore.downloadsSelector(doc)
 		else if(doc.querySelector(appstore.downloadsSelector)) downloads = doc.querySelector(appstore.downloadsSelector).innerHTML
-		return { downloads: downloads ? fn.chineseToInternationalNumbers(downloads) : null }
+		return { 
+			downloads: downloads ? fn.chineseToInternationalNumbers(downloads) : null,
+			version: version
+		}
 	}
 	catch(e){
+		console.log("error",e)
 		return { error: true }
 	}
 }
@@ -31,20 +40,35 @@ async function getDetails(appstore, url){
 async function getDetailsAsync(appstore, url){
 	var page
 	try{
+		console.log("appstore:",appstore)
+		console.log("url:",url)
 		page = await global.browser.newPage()
 		await page.goto(url)
 		if(typeof(appstore.downloadsSelector!="function")) await page.waitForSelector(appstore.downloadsSelector)
-		let downloads = await page.evaluate((appstore) => {
-			let downloads
-			if(typeof(appstore.downloadsSelector)=="function") downloads = appstore.downloadsSelector(document)
-			else if(document.querySelector(appstore.downloadsSelector)) downloads = document.querySelector(appstore.downloadsSelector).innerHTML
-			return downloads
+
+		appstore.strVersionSelector = appstore.versionSelector.toString()
+
+		let downloads, version
+		[ downloads, version ] = await page.evaluate((appstore) => {
+
+			eval("document.versionSelector="+appstore.strVersionSelector)
+			let d, v
+			if(document.versionSelector && typeof document.versionSelector == "function") v = document.versionSelector(document)
+
+			if(typeof(appstore.downloadsSelector)=="function") d = appstore.downloadsSelector(document)
+			else if(document.querySelector(appstore.downloadsSelector)) d = document.querySelector(appstore.downloadsSelector).innerHTML
+			return [ d, v ]
+
 		},appstore)
-		return { downloads: downloads ? fn.chineseToInternationalNumbers(downloads) : null }
+		return { 
+			downloads: downloads ? fn.chineseToInternationalNumbers(downloads) : null,
+			version: version
+		}
 
 	}
 	catch(e){
 		page.close()
+		console.log("error",e)
 		return { error: true }
 	}
 }
